@@ -1,4 +1,3 @@
-import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import helmet from "helmet";
@@ -6,13 +5,16 @@ import morgan from "morgan";
 
 import fs from "fs";
 import url from 'url';
+import { EventEmitter } from 'events'
 
 import CONFIG from "../config/config.js";
 
-const startServer = () => {
+const startServer = (app) => {
 
-    const app = express();
     serverMiddlewaresInit(app);
+
+    let appStartedEmitter = new EventEmitter();
+    app.set('appStartedEmitter', appStartedEmitter);
 
     // defining an endpoint to return specific coin data by ID.
     app.get('/', (req, res) => {
@@ -30,7 +32,10 @@ const startServer = () => {
 
     app.listen(3001, () => {
         console.log('listening on port 3001');
+
+        appStartedEmitter.emit('local-api-server-start');
     });
+
 }
 
 const serverMiddlewaresInit = (app) => {
